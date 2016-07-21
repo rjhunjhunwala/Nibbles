@@ -1,0 +1,192 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package nibbles;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+/**
+ *
+ * @author rohan
+ */
+public class Nibbles {
+	private static boolean alive;
+
+	public static class GameFrame extends JFrame {
+
+		public GameFrame() {
+			super("Snake!");
+			this.setVisible(true);
+			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			this.add(new GamePanel());
+			this.pack();
+			this.setBackground(Color.blue);
+			this.addKeyListener(new Controller());
+
+		}
+		private static final long serialVersionUID = 1L;
+
+		public static class GamePanel extends JPanel {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Dimension getPreferredSize() {
+				return new Dimension(640, 640);
+			}
+
+			public void paintComponent(Graphics g) {
+				g.setColor(Color.green);
+				for (Coord c : snake.snake) {
+					g.fillRect(c.x * 16, c.y * 16, 16, 16);
+				
+				}				g.setColor(Color.red);	g.fillRect(apple.x * 16, apple.y * 16, 16, 16);
+			}
+		}
+	}
+	public static int score;
+	public static Player snake = new Player();
+public static Coord apple;
+	/**
+	 * @param args the command line arguments
+	 */
+	public static void main(String[] args) {
+	do {
+		snake = new Player();
+			score = 0;
+			alive = true;
+			while(apple == null ||snake.snake.contains(apple)){
+				apple = new Coord((int) (Math.random()*40),(int) (Math.random()*40));
+			}
+			GameFrame frame = new GameFrame();
+						new Thread(new Game()).start();
+			while (alive) {
+				frame.repaint();
+			}
+		} while (JOptionPane.showConfirmDialog(null, "Your score was " + score + "! Play again?", null, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION);
+	}
+
+	public static class Controller implements KeyListener {
+
+		@Override
+		public void keyTyped(KeyEvent e) {
+			//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			int attemptDir = -1;
+			if(canMoveAgain)
+			switch (e.getKeyChar()) {
+				case 'w':
+				case 'W':
+					attemptDir = 3;
+					break;
+				case 'a':
+				case 'A':
+					attemptDir = 2;
+					break;
+				case 's':
+				case 'S':
+					attemptDir = 1;
+					break;
+				case 'd':
+				case 'D':
+					attemptDir = 0;
+			}
+			if (attemptDir != -1 && attemptDir != (snake.dir + 2) % 4) {
+				snake.dir = attemptDir;
+			}
+			canMoveAgain=false;
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		}
+
+	}
+static boolean canMoveAgain = true;
+	public static class Game implements Runnable {
+
+		@Override
+		public void run() {
+			
+while(Nibbles.alive){
+canMoveAgain = true;
+	try {
+		Thread.sleep(100);
+	} catch (InterruptedException ex) {
+		Logger.getLogger(Nibbles.class.getName()).log(Level.SEVERE, null, ex);
+	}
+			Coord top = snake.topOf;
+			int dX = (int) Math.cos(snake.dir * Math.PI / 2);
+			int dY = (int) Math.sin(snake.dir * Math.PI / 2);
+			Coord c = new Coord((40+top.x+dX)%40, (40+top.y+dY)%40);
+if(snake.snake.contains(c)){
+	Nibbles.alive = false;
+	break;
+}
+snake.snake.add(c);
+			snake.topOf= c;
+			if(!snake.topOf.equals(apple)){
+snake.snake.remove();
+			}else{
+				score++;
+							while(apple == null ||snake.snake.contains(apple)){
+				apple = new Coord((int) (Math.random()*40),(int) (Math.random()*40));
+			}
+			}
+}
+		}
+
+	}
+
+	public static class Coord {
+
+		public final int x, y;
+
+		public Coord(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			return this.x == ((Coord) o).x && this.y == ((Coord) o).y;
+		}
+	}
+
+	public static class Player {
+
+		public int dir = 0;
+		Queue<Coord> snake = new ArrayDeque<>();
+		Coord topOf;
+
+		{
+			snake.add(new Coord(16, 20));
+						snake.add(new Coord(17, 20));
+						snake.add(new Coord(18, 20));
+									snake.add(new Coord(19, 20));
+									snake.add(new Coord(20, 20));
+
+
+
+			
+			topOf = new Coord(20, 20);
+		}
+	}
+}
